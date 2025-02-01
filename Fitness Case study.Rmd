@@ -1,0 +1,109 @@
+---
+title: "Case Study Fitness"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+date: "2024-02-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Preparation 
+```{install packages first}
+install.packages("tidyverse")
+install.packages("dplyr")
+install.packages("janitor")
+install.packages("ggplot2")
+install.packages("skimr")
+
+{Avg_data}
+{Avg_data_workout}
+{Avg_data2}
+{Avg_workout}
+
+```
+
+```{then,loading packages}
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(skimr)
+```
+## Import your data from the file
+
+```{Join all necceaary data by inner_join}
+Daily_fitness_cmp <-inner_join(Daily_fitness,weightLogInfo_merged)
+Daily_fitness <- inner_join(Daily_fitness_ver2,sleepDay_merged)
+Daily_fitness_active <-inner_join(Daily_fitness_ver5,dailySteps_merged)
+Daily_finness_ver1 <-inner_join(Daily_fitness_ver5,dailyActivity_merged2)
+Daily_fitness_ver5 <-inner_join(dailyCalories_merged,dailyIntensities_merged)
+
+```
+
+## Filtering your data 
+```
+{To rid of the invalid data, process the syntax below } filter_cmp<-filter(Daily_fitness_cmp,IsManualReport == "TRUE")
+
+{Then, you groupby the category that you need for your analysis}
+selected_data <- filter_cmp %>%
+select(Id,ActivityDay,WeightKg,BMI,Calories,TotalMinutesAsleep)
+group_by(Id)
+summarise(filter_cmp,mean(TotalMinutesAsleep/60))
+```
+
+
+## Caliculate the Average amount for each category that you need for your analysis 
+```{Combine the groupby function and mean function}
+{BMI,Cal, Sleeping Data }
+selected_data <- filter_cmp %>%
+select(Id,ActivityDay,WeightKg,BMI,Calories,TotalMinutesAsleep)
+group_by(Id)Avg_data <- selected_data %>%
+group_by(Id) %>%
+summarise(avg_BMI=mean(BMI),
+            avg_Sleep=mean(TotalMinutesAsleep/60),
+            avg_Cal=mean(Calories))
+            
+Avg_data2 <- Avg_data %>%
+group_by(Id) %>%
+summarise(BMI=round(avg_BMI,0),
+          Sleep=round(avg_Sleep,0),
+          Cal=round(avg_Cal,0))
+summarise(filter_cmp,mean(TotalMinutesAsleep/60))
+
+{Workout Data}
+
+Avg_data_workout <- selected_data2 %>%
+group_by(Id) %>%
+summarise(Light=mean(LightlyActiveMinutes),
+            Normal=mean(FairlyActiveMinutes),
+            Active=mean(VeryActiveMinutes))
+Avg_workout <- Avg_data_workout %>%
+group_by(Id) %>%
+summarise(Light=round(Light,0),
+          Normal=round(Normal,0),
+          Active=round(Active,0))  
+```
+## Visualization for each category 
+```{use ggplot for visualization}
+
+{BMI,Cal,Sleep data}
+Avg_data2
+ggplot(Avg_data2,aes(x=Id, y=Sleep,fill=Sleep)) +geom_bar(stat="identity") + 
+labs(title= "Sleep Quality",x="Id", y="Sleep Hour")+theme_minimal()
+
+{Workout Data}
+ggplot(Avg_workout,aes(x=Id, y=Active,fill=Active)) +geom_bar(stat="identity") + 
+labs(title= "Workout Minutes",x="Id", y="Active")+theme_minimal()
+```
+
+# Conlusion 
+
+There are some users are struggling for sleeping and Hard Active workout compared to other data. 
+
+
+
